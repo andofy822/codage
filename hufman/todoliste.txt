@@ -1,0 +1,8 @@
+code de chaque si selon hufman:
+ -tableau de string S 
+ -tableaude double P
+ fonction codage: tableau S tableau P (1,4,3,5,6)
+  -fonction ordre Decroissant du tableau P  (6,5,4,3,1)
+  -fonction fusionnage tableau P (6,5,4,3,1)
+    ordre dcroissant avec fusionnage  P->(6,5,4,3)->(12,6,5)-> (12,30)
+  -fonction creation d'arbre avec cela  et onretourne le arbre
