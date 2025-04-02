@@ -81,9 +81,9 @@ def compresse(nom_fichier,out="out.bin"):
         nb_bits = len(donnees_compressees)
         f.write(nb_bits.to_bytes(4, 'big'))
         
+        taille_finale = f.tell()
         # Écrire les données compressées
         donnees_compressees.tofile(f)
-        taille_finale = f.tell()
 
     print("✅ Compression avec bitarray terminée")
     print(f"Taille texte original     : {len(texte.encode('utf-8'))} octets")
@@ -135,33 +135,6 @@ def decompresse(nom_fichier_compressé, nom_fichier_sortie):
     return texte_decompresse
 
 # Test
-# if __name__ == "__main__":
-#     # Compresser et décompresser
-#     # compresse("texte.txt")
-#     # decompresse("out.bin", "texte_decompresse.txt")
 if __name__ == "__main__":
-    # Texte d'exemple
-    texte = "madagascar"
-    
-    # Étape 1 : Construire la table de fréquences
-    symboles, probabilites, _ = construire_table_frequence(texte)
-    
-    # Étape 2 : Construire l'arbre de Huffman
-    noeuds = creer_noeuds(symboles, probabilites)
-    arbre = construire_arbre_huffman(noeuds)
-    
-    # Étape 3 : Générer les codes binaires
-    codes = generer_codes_binaires(arbre)
-    
-    # Afficher les codes binaires générés
-    print("🔹 Codes binaires de Huffman :")
-    for symbole, info in codes.items():
-        print(f"  '{symbole}' -> {bin(info['code'])[2:]} (longueur {info['longueur']})")
-    
-    # Étape 4 : Encoder le texte
-    texte_encode = encoder_texte(texte, codes)
-    
-    # Afficher le texte encodé
-    print("\n🔹 Texte original :", texte)
-    print("🔹 Texte encodé en bitarray :", texte_encode)
-    print("🔹 Texte encodé (binaire) :", texte_encode.to01())  # Affichage en binaire
+    compresse("texte.txt")
+    decompresse("out.bin", "texte_decompresse.txt")
