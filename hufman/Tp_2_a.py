@@ -1,6 +1,6 @@
 from bitarray import bitarray
 import pickle
-
+from PIL import Image
 # Fonctions existantes inchangées (pour référence)
 def lire_fichier_texte(nom_fichier):
     with open(nom_fichier, 'r', encoding='utf-8') as f:
@@ -134,7 +134,41 @@ def decompresse(nom_fichier_compressé, nom_fichier_sortie):
     
     return texte_decompresse
 
-# Test
+
+def extract_hidden_message(image_path, target_pixels):
+    # Ouvrir l'image et charger les pixels
+    img = Image.open(image_path)
+    pixels = img.load()
+
+    binary_message = ""
+    
+    # Parcourir chaque pixel cible et extraire les LSB des canaux RGB
+    for x, y in target_pixels:
+        r, g, b, *a = pixels[x, y]  # *a pour gérer les images avec/sans alpha
+        
+        # Extraire les LSB de chaque canal (R, G, B)
+        binary_message += str(r & 1)  # LSB du rouge
+        binary_message += str(g & 1)  # LSB du vert
+        binary_message += str(b & 1)  # LSB du bleu
+
+    # Convertir la chaîne binaire en caractères ASCII
+    message = ""
+    for i in range(0, len(binary_message), 8):
+        byte = binary_message[i:i+8]
+        if len(byte) == 8:
+            message += chr(int(byte, 2))
+
+    return message
+
+# # Exemple d'utilisation
+# if __name__ == "__main__":
+#     # Liste des pixels où le message est caché (doit être identique à l'encodage)
+#     target_pixels = [(0, 0), (1, 1), (2, 2)]  
+    
+#     # Extraire le message
+#     hidden_message = extract_hidden_message("output.png", target_pixels)
+#     print("Message extrait:", hidden_message)
+# # Test
 if __name__ == "__main__":
     compresse("texte.txt")
     decompresse("out.bin", "texte_decompresse.txt")
