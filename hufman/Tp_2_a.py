@@ -1,6 +1,6 @@
 from bitarray import bitarray
 import pickle
-from PIL import Image
+
 # Fonctions existantes inchangées (pour référence)
 def lire_fichier_texte(nom_fichier):
     with open(nom_fichier, 'r', encoding='utf-8') as f:
@@ -39,16 +39,32 @@ def construire_arbre_huffman(noeuds):
         }
         noeuds.append(parent)
     return noeuds[0]
+def verifier_prefixe(dictionnaire):
+    codes = [format(info["code"], f'0{info["longueur"]}b') for info in dictionnaire.values()]
+    codes.sort()  # Trier pour comparer les préfixes adjacents
+    print(codes)
+
+    for i in range(len(codes) - 1):
+        if codes[i + 1].startswith(codes[i]):
+            print(f"⚠️ Erreur : {codes[i]} est un préfixe de {codes[i + 1]}")
+            return False
+    return True
+
 
 def generer_codes_binaires(noeud, code=0, longueur=0, dictionnaire=None):
     if dictionnaire is None:
         dictionnaire = {}
+
     if noeud["symbole"] is not None:
         dictionnaire[noeud["symbole"]] = {"code": code, "longueur": longueur}
     else:
         generer_codes_binaires(noeud["gauche"], code << 1, longueur + 1, dictionnaire)
         generer_codes_binaires(noeud["droite"], (code << 1) | 1, longueur + 1, dictionnaire)
+
+    # Afficher les codes binaires générés
+    verifier_prefixe(dictionnaire)
     return dictionnaire
+
 
 # Nouvelle fonction d'encodage avec bitarray
 def encoder_texte(texte, codes_binaires):
@@ -135,30 +151,6 @@ def decompresse(nom_fichier_compressé, nom_fichier_sortie):
     return texte_decompresse
 
 
-def extract_hidden_message(image_path, target_pixels):
-    # Ouvrir l'image et charger les pixels
-    img = Image.open(image_path)
-    pixels = img.load()
-
-    binary_message = ""
-    
-    # Parcourir chaque pixel cible et extraire les LSB des canaux RGB
-    for x, y in target_pixels:
-        r, g, b, *a = pixels[x, y]  # *a pour gérer les images avec/sans alpha
-        
-        # Extraire les LSB de chaque canal (R, G, B)
-        binary_message += str(r & 1)  # LSB du rouge
-        binary_message += str(g & 1)  # LSB du vert
-        binary_message += str(b & 1)  # LSB du bleu
-
-    # Convertir la chaîne binaire en caractères ASCII
-    message = ""
-    for i in range(0, len(binary_message), 8):
-        byte = binary_message[i:i+8]
-        if len(byte) == 8:
-            message += chr(int(byte, 2))
-
-    return message
 
 # # Exemple d'utilisation
 # if __name__ == "__main__":
@@ -170,5 +162,5 @@ def extract_hidden_message(image_path, target_pixels):
 #     print("Message extrait:", hidden_message)
 # # Test
 if __name__ == "__main__":
-    compresse("texte.txt")
-    decompresse("out.bin", "texte_decompresse.txt")
+     compresse("texte.txt")
+    #  decompresse("out.bin", "texte_decompresse.txt")
